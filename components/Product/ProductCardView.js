@@ -11,7 +11,7 @@ const ProductCardView = () => {
         <View style={styles.imageContainer}>
           <Image
             source={{
-              uri: "https://d326fntlu7tb1e.cloudfront.net/uploads/cb2e64a8-ad4c-4d45-b58b-b0c7e11b6bb4-fn1.jpg",
+              uri: "https://cdn2.cellphones.com.vn/x/media/catalog/product/m/a/macbook-air-m1-2020-gold-600x600.jpg",
             }}
             style={styles.image}
           />

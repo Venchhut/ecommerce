@@ -25,15 +25,16 @@ const ProductDetail = () => {
     <View style={styles.container}>
       <View style={styles.upperRow}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back-circle-outline" size={34} color="black" />
+          <Ionicons name="chevron-back-circle" size={30} color={COLORS.black} />
         </TouchableOpacity>
+        <Text style={styles.title}>Product Details</Text>
         <TouchableOpacity>
           <MaterialIcons name="favorite-border" size={30} />
         </TouchableOpacity>
       </View>
       <Image
         source={{
-          uri: "https://d326fntlu7tb1e.cloudfront.net/uploads/cb2e64a8-ad4c-4d45-b58b-b0c7e11b6bb4-fn1.jpg",
+          uri: "https://cdn2.cellphones.com.vn/x/media/catalog/product/m/a/macbook-air-m1-2020-gold-600x600.jpg",
         }}
         style={styles.image}
       />
@@ -90,8 +91,13 @@ const ProductDetail = () => {
             onPress={() => navigation.navigate("Cart")}
             style={styles.cartBtn}
           >
-            <Feather name="shopping-cart" size={24} color="black" />
-            <Text>Add to Cart </Text>
+            <Feather
+              name="shopping-cart"
+              size={24}
+              color="black"
+              style={styles.cartText}
+            />
+            <Text style={styles.cartText}>Add to Cart </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -200,10 +206,17 @@ const styles = StyleSheet.create({
     flexDirection: "row", // Align icon and text in a row
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 20, // Fully rounded button
-    backgroundColor: COLORS.primary, // Red background color
+    backgroundColor: COLORS.primary,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 30,
+    alignItems: "center",
+    width: "70%",
+  },
+  cartText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   totalPriceText: {
     fontSize: 16,

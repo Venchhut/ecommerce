@@ -25,11 +25,6 @@ const Search = () => {
 
         <View>
           <TouchableOpacity style={styles.searchBtn} onPress={() => {}}>
-            {/* <Ionicons
-            name="camera-outline"
-            size={SIZES.xLarge}
-            color={COLORS.gray}
-          /> */}
             <Ionicons name="filter-circle-outline" size={24} color="black" />
           </TouchableOpacity>
         </View>

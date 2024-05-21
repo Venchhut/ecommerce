@@ -10,12 +10,8 @@ const Heading = ({ title, navigateTo }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>New</Text>
-        <TouchableOpacity
-        //   onPress={() =>
-        //     navigation.navigate(navigateTo, { screenTitle: title })
-        //   }
-        >
-          <Ionicons name="grid" size={24} color="black" />
+        <TouchableOpacity onPress={() => navigation.navigate("Product")}>
+          <Text style={styles.title}>See All</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -37,7 +33,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: SIZES.xLarge,
-    fontFamily: "semibold",
+    fontFamily: "bold",
     color: COLORS.black,
+  },
+  title: {
+    fontFamily: "bold",
+    fontSize: SIZES.large,
   },
 });
