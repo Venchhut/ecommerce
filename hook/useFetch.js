@@ -10,7 +10,7 @@ function useFetch() {
     setIsLoading(true);
     setError(null); // Reset error state before new request
     try {
-      const response = await axios.get("http://localhost:8800/api/product"); // Corrected 'response'
+      const response = await axios.get("http://10.13.8.25:8080/api/product"); // Corrected 'response'
       setData(response.data);
     } catch (error) {
       setError(error.message); // Set error message

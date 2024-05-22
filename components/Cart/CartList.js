@@ -8,8 +8,9 @@ import {
 } from "react-native";
 import CartTile from "./CartTile";
 import { COLORS, SIZES } from "../../constants";
-
+import { useNavigation } from "@react-navigation/native";
 const CartList = () => {
+  const navigation = useNavigation();
   // Simulated data
   const initialData = [
     {
@@ -36,6 +37,26 @@ const CartList = () => {
     },
     {
       _id: "3",
+      cartItem: {
+        title: "Nike Pegasus",
+        imageUrl: "https://via.placeholder.com/150",
+        supplier: "Shoes",
+        price: "$85",
+      },
+      quantity: 1,
+    },
+    {
+      _id: "4",
+      cartItem: {
+        title: "Nike Pegasus",
+        imageUrl: "https://via.placeholder.com/150",
+        supplier: "Shoes",
+        price: "$85",
+      },
+      quantity: 1,
+    },
+    {
+      _id: "5",
       cartItem: {
         title: "Nike Pegasus",
         imageUrl: "https://via.placeholder.com/150",
@@ -88,7 +109,10 @@ const CartList = () => {
       />
       <View style={styles.summaryContainer}>
         <Text style={styles.summaryText}>Total Cost: ${totalPrice}</Text>
-        <TouchableOpacity style={styles.checkoutButton} onPress={onCheckout}>
+        <TouchableOpacity
+          style={styles.checkoutButton}
+          onPress={() => navigation.navigate("PaymentMethods")}
+        >
           <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
         </TouchableOpacity>
       </View>
@@ -109,6 +133,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#eee",
     alignItems: "center",
+    marginBottom: "10%",
   },
   summaryText: {
     fontSize: 16,
@@ -121,15 +146,17 @@ const styles = StyleSheet.create({
   },
   checkoutButton: {
     backgroundColor: COLORS.primary,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 30,
+    paddingVertical: 15,
+    borderRadius: SIZES.medium,
+    justifyContent: "center",
     alignItems: "center",
+    marginTop: 20,
+    marginHorizontal: 20,
     width: "90%",
   },
   checkoutButtonText: {
-    color: "white",
-    fontSize: 18,
+    color: COLORS.white,
+    fontSize: 16,
     fontWeight: "bold",
   },
 });

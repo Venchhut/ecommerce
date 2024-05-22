@@ -3,23 +3,21 @@ import React from "react";
 import { SIZES, COLORS } from "../../constants";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-const ProductCardView = () => {
+
+const ProductCardView = ({ product }) => {
   const navigation = useNavigation();
   return (
-    <TouchableOpacity onPress={() => navigation.navigate("ProductDetail")}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate("ProductDetail", { product })}
+    >
       <View style={styles.container}>
         <View style={styles.imageContainer}>
-          <Image
-            source={{
-              uri: "https://cdn2.cellphones.com.vn/x/media/catalog/product/m/a/macbook-air-m1-2020-gold-600x600.jpg",
-            }}
-            style={styles.image}
-          />
+          <Image source={{ uri: product.image }} style={styles.image} />
         </View>
         <View style={styles.details}>
-          <Text style={styles.title}>Product1</Text>
-          <Text style={styles.supplier}>Product1</Text>
-          <Text style={styles.price}>$200</Text>
+          <Text style={styles.title}>{product.title}</Text>
+          <Text style={styles.supplier}>{product.Desc}</Text>
+          <Text style={styles.price}>{product.price}</Text>
         </View>
         <TouchableOpacity style={styles.addBtn}>
           <MaterialIcons name="favorite-border" size={24} />

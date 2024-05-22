@@ -13,36 +13,13 @@ import Search from "../components/Home/Search.js";
 import Slider from "../components/Home/Slider.js";
 import Heading from "../components/Home/Heading.js";
 import ProductRow from "../components/Product/ProductRow.js";
+import Category from "./Category.js";
 
 const Home = () => {
   return (
     <>
       <View style={styles.topnav}>
         <SafeAreaView>
-          <View style={styles.appBarWrapper}>
-            <View style={styles.appBar}>
-              <Text style={styles.location}>
-                <Ionicons
-                  name="location-outline"
-                  size={25}
-                  color={COLORS.gray}
-                />
-                <Text>PP,Cambodia</Text>
-              </Text>
-              <View style={{ alignItems: "flex-end" }}>
-                <View style={styles.cartCounter}>
-                  <Text style={styles.cartNumber}>2</Text>
-                </View>
-                <TouchableOpacity onPress={() => handlePress()}>
-                  <Ionicons
-                    name="notifications-outline"
-                    size={24}
-                    color={COLORS.gray}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
           <View>
             <Search />
           </View>
@@ -53,6 +30,7 @@ const Home = () => {
         <View>
           <Slider />
         </View>
+        <Category />
         <View style={{ marginHorizontal: 10, marginBottom: 120 }}>
           <Heading />
           <ProductRow />
@@ -69,7 +47,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    padding: 10,
   },
 
   container: {

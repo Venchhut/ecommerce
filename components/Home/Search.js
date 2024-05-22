@@ -1,33 +1,44 @@
-import { StyleSheet, View, TouchableOpacity, TextInput } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Text,
+} from "react-native";
 import React from "react";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { COLORS, SIZES } from "../../constants";
-const Search = () => {
-  return (
-    <View>
-      <View style={styles.searchContainer}>
-        <TouchableOpacity>
-          <Feather
-            style={styles.searchIcon}
-            name="search"
-            size={24}
-            color="black"
-          />
-        </TouchableOpacity>
-        <View style={styles.searchWrapper}>
-          <TextInput
-            style={styles.searchInput}
-            value=""
-            onPressIn={() => navigation.navigate("Search")}
-            placeholder="What are you looking for?"
-          />
-        </View>
+import { useNavigation } from "@react-navigation/native";
 
-        <View>
-          <TouchableOpacity style={styles.searchBtn} onPress={() => {}}>
-            <Ionicons name="filter-circle-outline" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
+const Search = () => {
+  const navigation = useNavigation();
+  return (
+    <View style={styles.container}>
+      <View style={styles.locationContainer}>
+        <Ionicons name="location-sharp" size={16} color="white" />
+        <Text style={styles.locationText}>New York, USA</Text>
+        <Ionicons name="chevron-down" size={16} color="white" />
+        <TouchableOpacity style={styles.notificationIcon}>
+          <Ionicons name="notifications-outline" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.searchContainer}>
+        <Feather
+          style={styles.searchIcon}
+          name="search"
+          size={24}
+          color="black"
+        />
+        <TextInput
+          style={styles.searchInput}
+          value=""
+          onPressIn={() => navigation.navigate("Search")}
+          placeholder="Search"
+          placeholderTextColor="gray"
+        />
+        <TouchableOpacity style={styles.filterIcon} onPress={() => {}}>
+          <Ionicons name="options-outline" size={24} color="black" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -36,72 +47,44 @@ const Search = () => {
 export default Search;
 
 const styles = StyleSheet.create({
-  // container: {
-  //   width: "100%",
-  // },
-  welcomeTxt: {
-    fontFamily: "bold",
-    fontSize: SIZES.xxLarge - 5,
-    color: COLORS.black,
-    marginTop: SIZES.xSmall,
-  },
-  welcomeMessage: {
-    fontFamily: "bold",
-    fontSize: SIZES.xxLarge - 6,
-    color: COLORS.primary,
-  },
-
-  searchContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    backgroundColor: COLORS.secondary,
+  container: {
+    backgroundColor: COLORS.primary,
+    padding: 16,
     borderRadius: SIZES.medium,
     marginVertical: SIZES.medium,
+  },
+  locationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  locationText: {
+    color: "white",
+    marginLeft: 8,
+    marginRight: 8,
+    fontSize: 16,
+  },
+  notificationIcon: {
+    marginLeft: "auto",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderRadius: SIZES.medium,
+    paddingHorizontal: 8,
     height: 50,
   },
-
-  searchWrapper: {
-    flex: 1,
-    backgroundColor: COLORS.secondary,
-    marginRight: SIZES.small,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: SIZES.small,
-    height: "100%",
+  searchIcon: {
+    marginRight: 8,
   },
   searchInput: {
-    fontFamily: "regular",
-    width: "100%",
+    flex: 1,
     height: "100%",
-    paddingHorizontal: SIZES.medium,
+    color: "black",
   },
-  searchBtn: {
-    width: 50,
-    height: "100%",
-    backgroundColor: COLORS.primary,
-    borderRadius: SIZES.medium,
-    justifyContent: "center",
-    alignItems: "center",
+  filterIcon: {
+    marginLeft: 8,
   },
-  searchIcon: {
-    marginRight: 10,
-    marginLeft: 10,
-    color: "gray",
-  },
-  tabsContainer: {
-    width: "100%",
-    marginTop: SIZES.medium,
-  },
-  tab: (activeJobType, item) => ({
-    paddingVertical: SIZES.small / 2,
-    paddingHorizontal: SIZES.small,
-    borderRadius: SIZES.medium,
-    borderWidth: 1,
-    borderColor: activeJobType === item ? COLORS.secondary : COLORS.gray2,
-  }),
-  tabText: (activeJobType, item) => ({
-    fontFamily: "medium",
-    color: activeJobType === item ? COLORS.secondary : COLORS.gray2,
-  }),
 });
