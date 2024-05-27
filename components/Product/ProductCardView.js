@@ -3,12 +3,29 @@ import React from "react";
 import { SIZES, COLORS } from "../../constants";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { useAuthContext } from "../../Contexts/AuthContext";
 
 const ProductCardView = ({ product }) => {
   const navigation = useNavigation();
+  const { axiosInstanceWithAuth } = useAuthContext();
+
+  const handleAddFavorite = async () => {
+    try {
+      const createAddFavorite = await axiosInstanceWithAuth.post(
+        "/api/wishlist",
+        { productId: product.id }
+      );
+      console.log(createAddFavorite.data);
+    } catch (error) {
+      console.error("Error adding to wishlist", error);
+    }
+  };
+
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate("ProductDetail", { product })}
+      onPress={() =>
+        navigation.navigate("ProductDetail", { productId: product.id })
+      }
     >
       <View style={styles.container}>
         <View style={styles.imageContainer}>
@@ -16,11 +33,14 @@ const ProductCardView = ({ product }) => {
         </View>
         <View style={styles.details}>
           <Text style={styles.title}>{product.title}</Text>
-          <Text style={styles.supplier}>{product.Desc}</Text>
-          <Text style={styles.price}>{product.price}</Text>
+          <Text style={styles.price}>${product.price}</Text>
         </View>
-        <TouchableOpacity style={styles.addBtn}>
-          <MaterialIcons name="favorite-border" size={24} />
+        <TouchableOpacity style={styles.addBtn} onPress={handleAddFavorite}>
+          <MaterialIcons
+            name="favorite-border"
+            size={24}
+            color={COLORS.black}
+          />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -35,18 +55,19 @@ const styles = StyleSheet.create({
     height: 240,
     marginEnd: 20,
     borderRadius: SIZES.medium,
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.lightWhite,
+    marginTop: 10,
+    overflow: "hidden",
   },
   imageContainer: {
     flex: 1,
-    width: 170,
-    marginLeft: SIZES.small / 2,
-    marginTop: SIZES.small / 2,
+    width: "100%",
     borderRadius: SIZES.small,
     overflow: "hidden",
   },
   image: {
-    aspectRatio: 1,
+    width: "100%",
+    height: "100%",
     resizeMode: "cover",
   },
   details: {
@@ -60,6 +81,7 @@ const styles = StyleSheet.create({
   price: {
     fontFamily: "bold",
     fontSize: SIZES.medium,
+    color: COLORS.primary,
   },
   addBtn: {
     position: "absolute",

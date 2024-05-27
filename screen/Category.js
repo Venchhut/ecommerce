@@ -7,29 +7,34 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-
-const categories = [
-  { id: "1", name: "Clothes", icon: "👗" },
-  { id: "2", name: "Electronics", icon: "📱" },
-  { id: "3", name: "Shoes", icon: "👟" },
-  { id: "4", name: "Watch", icon: "⌚️" },
-];
+import { COLORS } from "../constants";
+import { useAuthContext } from "../Contexts/AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
 const Category = () => {
   const [data, setData] = useState([]);
-
+  const { axiosInstance } = useAuthContext();
+  const navigation = useNavigation();
   useEffect(() => {
-    // Simulating a fetch call to API
-    setTimeout(() => {
-      setData(categories);
-    }, 1000);
+    const fetchCategory = async () => {
+      const response = await axiosInstance.get("/api/category");
+      setData(response.data);
+    };
+    fetchCategory();
   }, []);
 
   const renderCategory = ({ item }) => (
-    <TouchableOpacity style={styles.categoryItem}>
-      <Text style={styles.icon}>{item.icon}</Text>
+    <View style={styles.header}>
+      <TouchableOpacity
+        style={styles.categoryItem}
+        onPress={() =>
+          navigation.navigate("productCategory", { catetoryId: item.id })
+        }
+      >
+        <Text style={styles.icon}>{item.icon}</Text>
+      </TouchableOpacity>
       <Text style={styles.name}>{item.name}</Text>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -50,6 +55,10 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
   },
+  header: {
+    marginRight: 20,
+    alignItems: "center",
+  },
   title: {
     fontSize: 20,
     fontWeight: "bold",
@@ -58,10 +67,9 @@ const styles = StyleSheet.create({
   categoryItem: {
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 20,
     padding: 10,
-    borderRadius: 10,
-    backgroundColor: "#f1f1f1",
+    borderRadius: 50,
+    backgroundColor: COLORS.lightWhite,
   },
   icon: {
     fontSize: 30,
@@ -69,6 +77,7 @@ const styles = StyleSheet.create({
   name: {
     marginTop: 5,
     fontSize: 16,
+    marginBottom: 10, // Add vertical space below each category name
   },
 });
 

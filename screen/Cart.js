@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { COLORS, SIZES } from "../constants";
 import { Ionicons } from "@expo/vector-icons";
 import CartList from "../components/Cart/CartList";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthContext } from "../Contexts/AuthContext";
 
 const Cart = ({ navigation }) => {
   return (

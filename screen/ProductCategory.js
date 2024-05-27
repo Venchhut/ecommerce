@@ -6,35 +6,40 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
+  FlatList,
+  SafeAreaView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { COLORS, SIZES } from "../constants";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons, MaterialIcons, Feather } from "@expo/vector-icons";
 import { useAuthContext } from "../Contexts/AuthContext";
+import ProductCardView from "../components/Product/ProductCardView";
 
-const ProductDetail = () => {
+const ProductCategory = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { productId } = route.params;
-  const { axiosInstance, axiosInstanceWithAuth } = useAuthContext();
+  const { catetoryId } = route.params;
+  const { axiosInstance } = useAuthContext();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  console.log(product);
   useEffect(() => {
-    const fetchProductDetail = async () => {
+    const fetchProductCategory = async () => {
       try {
-        const response = await axiosInstance.get(`/api/product/${productId}`);
-        setProduct(response.data);
+        const response = await axiosInstance.get(
+          `/api/product/category/${catetoryId}`
+        );
+        setProduct(response.data.Products);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchProductDetail();
-  }, [productId]);
+    fetchProductCategory();
+  }, [catetoryId]);
 
   if (loading) {
     return (
@@ -55,23 +60,9 @@ const ProductDetail = () => {
   if (!product) {
     return null;
   }
-  const handleAddCart = async () => {
-    try {
-      const response = await axiosInstanceWithAuth.post(
-        `/api/cart/add/${productId}`,
-        {
-          productId: product.id,
-          quantity: 1,
-        }
-      );
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error adding to cart", error);
-    }
-  };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.upperRow}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back-circle" size={30} color={COLORS.black} />
@@ -81,49 +72,23 @@ const ProductDetail = () => {
           <MaterialIcons name="favorite-border" size={30} />
         </TouchableOpacity>
       </View>
-      <ScrollView>
-        <Image source={{ uri: product.image }} style={styles.image} />
-        <View style={styles.details}>
-          <View style={styles.titleRow}>
-            <Text style={styles.title}>{product.title}</Text>
-            <View style={styles.priceWrapper}>
-              <Text style={styles.price}>${product.price}</Text>
-            </View>
+      <FlatList
+        data={product}
+        renderItem={({ item }) => (
+          <View style={styles.productContainer}>
+            <ProductCardView product={item} />
           </View>
-          <View style={styles.ratingRow}>
-            <View style={styles.rating}>
-              {[1, 2, 3, 4, 5].map((index) => (
-                <Ionicons key={index} name="star" size={24} color="gold" />
-              ))}
-              <Text style={styles.ratingText}>(4.8)</Text>
-            </View>
-          </View>
-          <View style={styles.descriptionWrapper}>
-            <Text style={styles.description}>Description</Text>
-            <Text style={styles.descText}>{product.Desc}</Text>
-          </View>
-          <View style={styles.cartRow}>
-            <View style={{ color: "white" }}>
-              <Text style={styles.totalPriceText}>Total Price</Text>
-              <Text style={styles.priceText}>${product.price}</Text>
-            </View>
-            <TouchableOpacity onPress={handleAddCart} style={styles.cartBtn}>
-              <Feather
-                name="shopping-cart"
-                size={24}
-                color="black"
-                style={styles.cartText}
-              />
-              <Text style={styles.cartText}>Add to Cart</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </View>
+        )}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={{ padding: SIZES.medium }}
+      />
+    </SafeAreaView>
   );
 };
 
-export default ProductDetail;
+export default ProductCategory;
 
 const styles = StyleSheet.create({
   container: {

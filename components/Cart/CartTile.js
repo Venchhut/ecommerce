@@ -5,7 +5,6 @@ import { AntDesign, Ionicons } from "@expo/vector-icons";
 
 const CartTile = ({ item, updateQuantity, deleteItem }) => {
   const [quantity, setQuantity] = useState(item.quantity);
-
   const increaseQuantity = () => {
     const newQuantity = quantity + 1;
     setQuantity(newQuantity);
@@ -24,20 +23,20 @@ const CartTile = ({ item, updateQuantity, deleteItem }) => {
     <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: item.cartItem.imageUrl }}
+          source={{ uri: item.Product.image }}
           resizeMode="cover"
           style={styles.productImg}
         />
       </View>
       <View style={styles.textContainer}>
         <Text style={styles.productTxt} numberOfLines={1}>
-          {item.cartItem.title}
+          {item.Product.title}
         </Text>
         <Text style={styles.supplierTxt} numberOfLines={1}>
-          {item.cartItem.supplier}
+          {item.Product.supplier}
         </Text>
         <Text style={styles.supplierTxt} numberOfLines={1}>
-          {item.cartItem.price} * {quantity}
+          {item.Product.price} * {quantity}
         </Text>
       </View>
       <View style={styles.quantityContainer}>

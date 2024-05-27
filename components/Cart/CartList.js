@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   FlatList,
@@ -8,100 +8,61 @@ import {
 } from "react-native";
 import CartTile from "./CartTile";
 import { COLORS, SIZES } from "../../constants";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useAuthContext } from "../../Contexts/AuthContext";
+
 const CartList = () => {
   const navigation = useNavigation();
-  // Simulated data
-  const initialData = [
-    {
-      _id: "1",
-      cartItem: {
-        title: "Light Brown Coat",
-        imageUrl:
-          "https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-plus_1_.png",
-        supplier: "Clothes",
-        price: "$120",
-      },
-      quantity: 1,
-    },
-    {
-      _id: "2",
-      cartItem: {
-        title: "Nike Pegasus 39",
-        imageUrl:
-          "https://cdn2.cellphones.com.vn/x/media/catalog/product/m/a/macbook-air-m1-2020-gold-600x600.jpg",
-        supplier: "Shoes",
-        price: "$90",
-      },
-      quantity: 1,
-    },
-    {
-      _id: "3",
-      cartItem: {
-        title: "Nike Pegasus",
-        imageUrl: "https://via.placeholder.com/150",
-        supplier: "Shoes",
-        price: "$85",
-      },
-      quantity: 1,
-    },
-    {
-      _id: "4",
-      cartItem: {
-        title: "Nike Pegasus",
-        imageUrl: "https://via.placeholder.com/150",
-        supplier: "Shoes",
-        price: "$85",
-      },
-      quantity: 1,
-    },
-    {
-      _id: "5",
-      cartItem: {
-        title: "Nike Pegasus",
-        imageUrl: "https://via.placeholder.com/150",
-        supplier: "Shoes",
-        price: "$85",
-      },
-      quantity: 1,
-    },
-  ];
-
-  const [data, setData] = useState(initialData);
+  const { axiosInstanceWithAuth } = useAuthContext();
+  const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchAllCart = async () => {
+        try {
+          const res = await axiosInstanceWithAuth.get("/api/cart/find");
+          setCart(res.data);
+        } catch (error) {
+          console.error("Failed to fetch cart data:", error);
+        }
+      };
+      fetchAllCart();
+    }, [])
+  );
 
   useEffect(() => {
     calculateTotalPrice();
-  }, [data]);
+  }, [cart]);
 
   const calculateTotalPrice = () => {
-    const total = data.reduce((sum, item) => {
-      const price = parseFloat(item.cartItem.price.replace("$", ""));
+    const total = cart.reduce((sum, item) => {
+      const price = parseFloat(item.Product.price);
       return sum + price * item.quantity;
     }, 0);
     setTotalPrice(total.toFixed(2));
   };
 
   const updateQuantity = (id, newQuantity) => {
-    const newData = data.map((item) => {
-      if (item._id === id) {
+    const newData = cart.map((item) => {
+      if (item.id === id) {
         return { ...item, quantity: newQuantity };
       }
       return item;
     });
-    setData(newData);
+    setCart(newData);
   };
 
   const onCheckout = () => {
-    // Add your checkout functionality here
     console.log("Checkout button pressed");
+    // Add your checkout functionality here
   };
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={data}
-        keyExtractor={(item) => item._id}
+        data={cart}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <CartTile item={item} updateQuantity={updateQuantity} />
         )}
@@ -111,7 +72,9 @@ const CartList = () => {
         <Text style={styles.summaryText}>Total Cost: ${totalPrice}</Text>
         <TouchableOpacity
           style={styles.checkoutButton}
-          onPress={() => navigation.navigate("PaymentMethods")}
+          onPress={() =>
+            navigation.navigate("PaymentMethods", { productCart: cart })
+          }
         >
           <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
         </TouchableOpacity>

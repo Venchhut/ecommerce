@@ -1,17 +1,29 @@
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
-  Text,
   View,
-  TouchableOpacity,
+  FlatList,
   SafeAreaView,
+  Text,
+  TouchableOpacity,
 } from "react-native";
-import React from "react";
+import { useAuthContext } from "../Contexts/AuthContext";
+import { SIZES, COLORS } from "../constants/index";
+import ProductCardView from "../components/Product/ProductCardView";
 import { Ionicons } from "@expo/vector-icons";
-import { COLORS, SIZES, FONTS } from "../constants"; // Make sure to have FONTS in your constants
-
-import ProductList from "../components/Product/ProductList";
 
 const Product = ({ navigation }) => {
+  const [products, setProducts] = useState([]);
+  const { axiosInstance } = useAuthContext();
+
+  useEffect(() => {
+    const getProducts = async () => {
+      const res = await axiosInstance.get("/api/product");
+      setProducts(res.data.products);
+    };
+    getProducts();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -23,7 +35,18 @@ const Product = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.title}>All Products</Text>
       </View>
-      <ProductList />
+      <FlatList
+        data={products}
+        renderItem={({ item }) => (
+          <View style={styles.productContainer}>
+            <ProductCardView product={item} />
+          </View>
+        )}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={{ padding: SIZES.medium }}
+      />
     </SafeAreaView>
   );
 };
@@ -44,7 +67,13 @@ const styles = StyleSheet.create({
     left: 20,
   },
   title: {
-    fontFamily: "bold",
     fontSize: SIZES.large,
+  },
+  productContainer: {
+    flex: 1,
+    margin: SIZES.small,
+  },
+  row: {
+    justifyContent: "space-between",
   },
 });

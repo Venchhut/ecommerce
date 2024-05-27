@@ -1,11 +1,4 @@
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { SafeAreaView, StyleSheet, View, ScrollView } from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS, SIZES } from "../constants";
@@ -26,12 +19,12 @@ const Home = () => {
         </SafeAreaView>
       </View>
 
-      <ScrollView>
+      <ScrollView showsHorizontalScrollIndicator={false}>
         <View>
           <Slider />
         </View>
         <Category />
-        <View style={{ marginHorizontal: 10, marginBottom: 120 }}>
+        <View style={{ marginHorizontal: 10, marginBottom: 50 }}>
           <Heading />
           <ProductRow />
         </View>

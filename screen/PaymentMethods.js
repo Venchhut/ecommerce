@@ -6,9 +6,16 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SIZES, COLORS } from "../constants";
+import {
+  initPaymentSheet,
+  presentPaymentSheet,
+} from "@stripe/stripe-react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { useAuthContext } from "../Contexts/AuthContext";
 
 const paymentMethods = [
   {
@@ -16,21 +23,80 @@ const paymentMethods = [
     name: "Pay On Delivery",
     icon: "cash-outline",
   },
-  { id: "stripePayment", name: "Cash", icon: "card-outline" },
+  {
+    id: "stripePayment",
+    name: "Cash",
+    icon: "card-outline",
+  },
 ];
 
-const PaymentMethods = ({ navigation }) => {
+const PaymentMethods = () => {
+  const navigation = useNavigation();
+  const { axiosInstanceWithAuth } = useAuthContext();
   const [selectedMethod, setSelectedMethod] = useState(null);
-
+  const [loading, setLoading] = useState(false);
+  const route = useRoute();
+  const { productCart } = route.params;
   const handleSelectMethod = (method) => {
     setSelectedMethod(method.id);
   };
-
-  const handleConfirmPayment = () => {
+  const handleConfirmPayment = async () => {
     if (selectedMethod === "payOnDelivery") {
       navigation.navigate("Order");
     } else if (selectedMethod === "stripePayment") {
-      navigation.navigate("StripePayment");
+      setLoading(true);
+      try {
+        // Initialize an array to store payment intents
+        const paymentIntents = [];
+        const totalAmount = productCart.reduce((acc, cartItem) => {
+          const itemAmount =
+            parseFloat(cartItem.Product.price) * cartItem.quantity * 100;
+          return acc + itemAmount;
+        }, 0);
+        // Create a payment intent for each product
+        const response = await axiosInstanceWithAuth.post(
+          "/api/order/payment",
+          {
+            productCart: productCart,
+            amount: totalAmount,
+          }
+        );
+        const { clientSecret } = response.data;
+
+        // Push the payment intent to the array
+        paymentIntents.push(clientSecret);
+        // Initialize payment sheet for each payment intent
+        for (const paymentIntent of paymentIntents) {
+          const { error: initError } = await initPaymentSheet({
+            paymentIntentClientSecret: paymentIntent,
+            merchantDisplayName: "Shop",
+            returnURL: "https://your-return-url.com",
+          });
+
+          if (initError) {
+            Alert.alert("Error", initError.message);
+            setLoading(false);
+            return;
+          }
+
+          const { error: presentError } = await presentPaymentSheet();
+
+          if (presentError) {
+            Alert.alert("Error", presentError.message);
+            console.log();
+          } else {
+            Alert.alert("Success", "Your payment was successful!");
+            navigation.navigate("Home");
+          }
+        }
+      } catch (error) {
+        console.error("Error creating payment intent:", error);
+        Alert.alert(
+          "Error",
+          "There was an issue with your payment. Please try again."
+        );
+      }
+      setLoading(false);
     }
   };
 
@@ -68,8 +134,11 @@ const PaymentMethods = ({ navigation }) => {
       <TouchableOpacity
         style={styles.confirmButton}
         onPress={handleConfirmPayment}
+        disabled={loading}
       >
-        <Text style={styles.confirmButtonText}>Confirm Payment</Text>
+        <Text style={styles.confirmButtonText}>
+          {loading ? "Processing..." : "Confirm Payment"}
+        </Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

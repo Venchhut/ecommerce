@@ -7,67 +7,33 @@ import {
   FlatList,
   SafeAreaView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { COLORS, SIZES, SHADOWS } from "../constants";
 import { SimpleLineIcons, Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useAuthContext } from "../Contexts/AuthContext";
+
 const Wishlist = () => {
   const navigation = useNavigation();
-  const [favoritesData, setFavoritesData] = useState([
-    {
-      id: 1,
-      title: "Product 1",
-      supplier: "Supplier A",
-      price: 20.99,
-      imageUrl:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-plus_1_.png",
-    },
-    {
-      id: 2,
-      title: "Product 2",
-      supplier: "Supplier B",
-      price: 15.49,
-      imageUrl:
-        "https://cdn2.cellphones.com.vn/x/media/catalog/product/m/a/macbook-air-m1-2020-gold-600x600.jpg",
-    },
-    {
-      id: 3,
-      title: "Product 3",
-      supplier: "Supplier C",
-      price: 30.0,
-      imageUrl:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/ipad-air-5.png",
-    },
-    {
-      id: 4,
-      title: "Product 3",
-      supplier: "Supplier C",
-      price: 30.0,
-      imageUrl:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/ipad-air-5.png",
-    },
-    {
-      id: 5,
-      title: "Product 3",
-      supplier: "Supplier C",
-      price: 30.0,
-      imageUrl:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/ipad-air-5.png",
-    },
-    {
-      id: 6,
-      title: "Product 3",
-      supplier: "Supplier C",
-      price: 30.0,
-      imageUrl:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/ipad-air-5.png",
-    },
-  ]);
+  const { axiosInstanceWithAuth } = useAuthContext();
+  const [favoritesData, setFavoritesData] = useState([]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchWish = async () => {
+        try {
+          const res = await axiosInstanceWithAuth.get("/api/wishlist/allwish");
+          setFavoritesData(res.data);
+        } catch (error) {
+          console.error("Failed to fetch wishlist data:", error);
+        }
+      };
+      fetchWish();
+    }, [])
+  );
   const deleteFavorite = (id) => {
     setFavoritesData((prevData) => prevData.filter((item) => item.id !== id));
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.upperRow}>
@@ -77,43 +43,46 @@ const Wishlist = () => {
         >
           <Ionicons name="chevron-back-circle" size={30} color={COLORS.black} />
         </TouchableOpacity>
-        <Text style={styles.title}> Favorites </Text>
+        <Text style={styles.title}>Favorites</Text>
       </View>
 
       <FlatList
         data={favoritesData}
         renderItem={({ item }) => (
-          // Render your favorite item here
-          <View>
+          <View style={styles.favcontainer}>
+            <View style={styles.imageContainer}>
+              <Image
+                source={{ uri: item.Product.image }}
+                resizeMode="cover"
+                style={styles.productImg}
+              />
+            </View>
             <TouchableOpacity
-              style={styles.favcontainer}
-              // onPress={() => navigation.navigate('Details')}
+              onPress={() =>
+                navigation.navigate("ProductDetail", {
+                  productId: item.Product.id,
+                })
+              }
             >
-              <TouchableOpacity style={styles.imageContainer}>
-                <Image
-                  source={{ uri: item.imageUrl }}
-                  resizeMode="cover"
-                  style={styles.productImg}
-                />
-              </TouchableOpacity>
               <View style={styles.textContainer}>
                 <Text style={styles.productTxt} numberOfLines={1}>
-                  {item.title}
+                  {item.Product.title}
                 </Text>
                 <Text style={styles.supplierTxt} numberOfLines={1}>
-                  {item.supplier}
+                  {item.Product.Desc}
                 </Text>
                 <Text style={styles.supplierTxt} numberOfLines={1}>
-                  $ {item.price}
+                  $ {item.Product.price}
                 </Text>
               </View>
-              <TouchableOpacity onPress={() => deleteFavorite(item.id)}>
-                <SimpleLineIcons name="trash" size={24} color="black" />
-              </TouchableOpacity>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => deleteFavorite(item.id)}>
+              <SimpleLineIcons name="trash" size={24} color="black" />
             </TouchableOpacity>
           </View>
         )}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id.toString()}
       />
     </SafeAreaView>
   );
@@ -123,60 +92,57 @@ export default Wishlist;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
-    marginHorizontal: 20,
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#fff",
   },
   upperRow: {
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
-    width: SIZES.width - 50,
-    marginBottom: SIZES.xSmall,
+    marginBottom: 20,
   },
   title: {
-    fontSize: SIZES.xLarge,
-    fontFamily: "bold",
+    fontSize: 24,
     fontWeight: "500",
     letterSpacing: 2,
+    marginLeft: 10,
   },
   favcontainer: {
-    flex: 1,
-    justifyContent: "space-between",
-    alignItems: "center",
     flexDirection: "row",
-    marginBottom: SIZES.xSmall,
-    padding: SIZES.medium,
-    borderRadius: SIZES.small,
+    alignItems: "center",
+    marginBottom: 15,
+    padding: 15,
+    borderRadius: 10,
     backgroundColor: "#FFF",
     ...SHADOWS.medium,
-    shadowColor: COLORS.white,
+    shadowColor: COLORS.black,
   },
   imageContainer: {
     width: 70,
+    height: 70,
     backgroundColor: COLORS.secondary,
-    borderRadius: SIZES.medium,
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden",
   },
   productImg: {
     width: "100%",
-    height: 65,
-    borderRadius: SIZES.small,
+    height: "100%",
   },
   textContainer: {
     flex: 1,
-    marginHorizontal: SIZES.medium,
+    marginHorizontal: 15,
   },
   productTxt: {
-    fontSize: SIZES.medium,
-    fontFamily: "bold",
+    fontSize: 16,
+    fontWeight: "bold",
     color: COLORS.primary,
   },
   supplierTxt: {
-    fontSize: SIZES.small + 2,
-    fontFamily: "regular",
+    fontSize: 14,
     color: COLORS.tertiary,
     marginTop: 3,
-    textTransform: "capitalize",
   },
 });
