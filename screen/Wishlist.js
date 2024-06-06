@@ -29,11 +29,76 @@ const Wishlist = () => {
         }
       };
       fetchWish();
-    }, [])
+    }, [axiosInstanceWithAuth])
   );
-  const deleteFavorite = (id) => {
-    setFavoritesData((prevData) => prevData.filter((item) => item.id !== id));
+
+  const deleteFavorite = async (productId) => {
+    try {
+      await axiosInstanceWithAuth.delete(`/api/wishlist/${productId}`);
+      setFavoritesData((prevData) =>
+        prevData.filter((item) => item.id !== productId)
+      );
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
   };
+
+  const truncateText = (text, wordLimit) => {
+    const words = text.split(" ");
+    if (words.length > wordLimit) {
+      return words.slice(0, wordLimit).join(" ") + "...";
+    }
+    return text;
+  };
+
+  const renderItem = ({ item }) => {
+    if (!item.Product) {
+      return null;
+    }
+
+    const { image, title, Desc, price, id } = item.Product;
+    const truncatedDesc = truncateText(Desc, 5);
+
+    return (
+      <View style={styles.favcontainer}>
+        <View style={styles.productInfo}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={{
+                uri: image.replace(
+                  "http://localhost:8800/",
+                  "http://192.168.1.79:8800/"
+                ),
+              }}
+              resizeMode="cover"
+              style={styles.productImg}
+            />
+          </View>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("ProductDetail", { productId: id })
+            }
+          >
+            <View style={styles.textContainer}>
+              <Text style={styles.productTxt} numberOfLines={1}>
+                {title}
+              </Text>
+              <Text style={styles.supplierTxt} numberOfLines={1}>
+                {truncatedDesc}
+              </Text>
+              <Text style={styles.supplierTxt} numberOfLines={1}>
+                $ {price}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={() => deleteFavorite(item.id)}>
+          <SimpleLineIcons name="trash" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.upperRow}>
@@ -45,43 +110,9 @@ const Wishlist = () => {
         </TouchableOpacity>
         <Text style={styles.title}>Favorites</Text>
       </View>
-
       <FlatList
         data={favoritesData}
-        renderItem={({ item }) => (
-          <View style={styles.favcontainer}>
-            <View style={styles.imageContainer}>
-              <Image
-                source={{ uri: item.Product.image }}
-                resizeMode="cover"
-                style={styles.productImg}
-              />
-            </View>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("ProductDetail", {
-                  productId: item.Product.id,
-                })
-              }
-            >
-              <View style={styles.textContainer}>
-                <Text style={styles.productTxt} numberOfLines={1}>
-                  {item.Product.title}
-                </Text>
-                <Text style={styles.supplierTxt} numberOfLines={1}>
-                  {item.Product.Desc}
-                </Text>
-                <Text style={styles.supplierTxt} numberOfLines={1}>
-                  $ {item.Product.price}
-                </Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => deleteFavorite(item.id)}>
-              <SimpleLineIcons name="trash" size={24} color="black" />
-            </TouchableOpacity>
-          </View>
-        )}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
     </SafeAreaView>
@@ -111,12 +142,18 @@ const styles = StyleSheet.create({
   favcontainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 15,
     padding: 15,
     borderRadius: 10,
     backgroundColor: "#FFF",
     ...SHADOWS.medium,
     shadowColor: COLORS.black,
+  },
+  productInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
   },
   imageContainer: {
     width: 70,

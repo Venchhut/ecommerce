@@ -8,7 +8,6 @@ const ProductRow = () => {
   const [products, setProducts] = useState([]);
   const { axiosInstance } = useAuthContext();
   useEffect(() => {
-    console.log("produccct");
     const getProducts = async () => {
       const res = await axiosInstance.get("/api/product");
       setProducts(res.data.products);

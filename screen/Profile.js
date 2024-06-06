@@ -5,11 +5,14 @@ import { COLORS, SIZES } from "../constants";
 import { StatusBar } from "expo-status-bar";
 import { CartContext } from "../components/Cart/CartContext";
 import { useAuthContext } from "../Contexts/AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
-const Profile = ({ navigation }) => {
+const Profile = () => {
   const [userData, setUserData] = useState(null);
   const { count, setCount } = useContext(CartContext);
   const { setAuth } = useAuthContext();
+  const navigation = useNavigation();
+
   useEffect(() => {
     checkUserExistence();
   }, []);
@@ -24,21 +27,15 @@ const Profile = ({ navigation }) => {
   };
 
   const handlePress = (screen) => {
-    // // Add your custom logic here
-    // console.log(`Navigating to ${screen}`);
-    // navigation.navigate(screen);
-    if (screen === "HelpCenter") {
+    if (screen === "Login") {
       setAuth("");
     }
+    navigation.navigate(screen);
   };
 
   const menuItems = [
     { name: "Your profile", icon: "account-outline", screen: "YourProfile" },
-    {
-      name: "Manage Address",
-      icon: "map-marker-outline",
-      screen: "Address",
-    },
+    { name: "Manage Address", icon: "map-marker-outline", screen: "Address" },
     {
       name: "Payment Methods",
       icon: "credit-card-outline",
@@ -46,7 +43,7 @@ const Profile = ({ navigation }) => {
     },
     { name: "My Orders", icon: "clipboard-list-outline", screen: "MyOrders" },
     { name: "Settings", icon: "cog-outline", screen: "Settings" },
-    { name: "Help Center", icon: "help-circle-outline", screen: "HelpCenter" },
+    { name: "Log out", icon: "help-circle-outline", screen: "Login" },
   ];
 
   return (

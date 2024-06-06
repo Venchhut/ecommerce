@@ -14,7 +14,6 @@ import YourProfile from "./screen/Profile/YourProfile";
 import Address from "./screen/Profile/Address";
 import MyOrders from "./screen/Profile/MyOrders";
 import Settings from "./screen/Profile/Settings";
-import Search from "./screen/Search";
 import PaymentMethods from "./screen/PaymentMethods";
 import StripePayment from "./screen/Payment/StripePayment";
 import ProductCategory from "./screen/ProductCategory";
@@ -61,11 +60,7 @@ const AuthConsumer = () => {
             component={ProductDetail}
             options={{ headerShown: false }}
           />
-          <Stack.Screen
-            name="Search"
-            component={Search}
-            options={{ headerShown: false }}
-          />
+
           <Stack.Screen
             name="Cart"
             component={Cart}

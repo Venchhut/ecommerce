@@ -15,10 +15,15 @@ const Category = () => {
   const [data, setData] = useState([]);
   const { axiosInstance } = useAuthContext();
   const navigation = useNavigation();
+
   useEffect(() => {
     const fetchCategory = async () => {
-      const response = await axiosInstance.get("/api/category");
-      setData(response.data);
+      try {
+        const response = await axiosInstance.get("/api/category");
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error); // Added error handling
+      }
     };
     fetchCategory();
   }, []);
@@ -31,7 +36,16 @@ const Category = () => {
           navigation.navigate("productCategory", { catetoryId: item.id })
         }
       >
-        <Text style={styles.icon}>{item.icon}</Text>
+        <Image
+          source={{
+            uri: item.image.replace(
+              "http://localhost:8800/",
+              "http://192.168.1.79:8800/" // Updated to reflect actual server IP address
+            ),
+          }}
+          style={styles.image} // Ensuring the image style is applied
+          resizeMode="cover"
+        />
       </TouchableOpacity>
       <Text style={styles.name}>{item.name}</Text>
     </View>
@@ -43,7 +57,7 @@ const Category = () => {
       <FlatList
         data={data}
         renderItem={renderCategory}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()} // Ensuring keyExtractor returns a string
         horizontal
         showsHorizontalScrollIndicator={false}
       />
@@ -71,13 +85,13 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     backgroundColor: COLORS.lightWhite,
   },
-  icon: {
-    fontSize: 30,
+  image: {
+    width: 40,
+    height: 40,
   },
   name: {
     marginTop: 5,
-    fontSize: 16,
-    marginBottom: 10, // Add vertical space below each category name
+    fontSize: 15,
   },
 });
 

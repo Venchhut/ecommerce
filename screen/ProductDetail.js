@@ -82,7 +82,15 @@ const ProductDetail = () => {
         </TouchableOpacity>
       </View>
       <ScrollView>
-        <Image source={{ uri: product.image }} style={styles.image} />
+        <Image
+          source={{
+            uri: product.image.replace(
+              "http://localhost:8800/",
+              "http://192.168.1.79:8800/"
+            ),
+          }}
+          style={styles.image}
+        />
         <View style={styles.details}>
           <View style={styles.titleRow}>
             <Text style={styles.title}>{product.title}</Text>

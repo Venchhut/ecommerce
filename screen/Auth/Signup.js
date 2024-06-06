@@ -11,7 +11,7 @@ import {
 import { useAuthContext } from "../../Contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { COLORS } from "../../constants";
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,12 +49,14 @@ const SignUp = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Create Account</Text>
+      <Text style={styles.label}>User Name</Text>
       <TextInput
         style={styles.input}
         placeholder="Ex. John Doe"
         value={name}
         onChangeText={setName}
       />
+      <Text style={styles.label}>Email</Text>
       <TextInput
         style={styles.input}
         placeholder="example@gmail.com"
@@ -62,6 +64,7 @@ const SignUp = () => {
         onChangeText={setEmail}
         keyboardType="email-address"
       />
+      <Text style={styles.label}>Phone Number</Text>
       <TextInput
         style={styles.input}
         placeholder="Phone"
@@ -69,6 +72,7 @@ const SignUp = () => {
         onChangeText={setPhone}
         keyboardType="phone-pad"
       />
+      <Text style={styles.label}>Password</Text>
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -76,19 +80,15 @@ const SignUp = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      {/* <View style={styles.termsContainer}>
-        <CheckBox value={isChecked} onValueChange={setIsChecked} />
-        <Text style={styles.termsText}>Agree with Terms & Conditions</Text>
-      </View> */}
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
-      {/* <View style={styles.signInContainer}>
+      <View style={styles.signInContainer}>
         <Text>Already have an account? </Text>
         <TouchableOpacity onPress={() => navigation.navigate("Login")}>
           <Text style={styles.signInText}>Sign In</Text>
         </TouchableOpacity>
-      </View> */}
+      </View>
     </SafeAreaView>
   );
 };
@@ -97,39 +97,50 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: "#f7f8fa",
+    justifyContent: "center",
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: "bold",
-    marginBottom: 20,
+    color: "#333",
+    marginBottom: 30,
     textAlign: "center",
+  },
+  label: {
+    fontSize: 18,
+    marginBottom: 8,
   },
   input: {
     height: 50,
-    borderColor: "#ddd",
+    borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-  },
-  termsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    borderRadius: 10,
     marginBottom: 20,
-  },
-  termsText: {
-    marginLeft: 10,
+    paddingHorizontal: 15,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 2,
   },
   button: {
-    backgroundColor: "#ff4757",
+    backgroundColor: COLORS.primary,
     paddingVertical: 15,
-    borderRadius: 5,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    elevation: 3,
+    marginBottom: 20,
   },
   buttonText: {
     color: "#fff",
     textAlign: "center",
     fontWeight: "bold",
+    fontSize: 16,
   },
   signInContainer: {
     flexDirection: "row",
@@ -137,7 +148,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   signInText: {
-    color: "#ff4757",
+    color: COLORS.primary,
     fontWeight: "bold",
   },
 });

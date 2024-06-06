@@ -25,7 +25,7 @@ const paymentMethods = [
   },
   {
     id: "stripePayment",
-    name: "Cash",
+    name: "Card",
     icon: "card-outline",
   },
 ];

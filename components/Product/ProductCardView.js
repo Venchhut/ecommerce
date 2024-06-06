@@ -29,7 +29,15 @@ const ProductCardView = ({ product }) => {
     >
       <View style={styles.container}>
         <View style={styles.imageContainer}>
-          <Image source={{ uri: product.image }} style={styles.image} />
+          <Image
+            source={{
+              uri: product.image.replace(
+                "http://localhost:8800/",
+                "http://192.168.1.79:8800/"
+              ),
+            }}
+            style={styles.image}
+          />
         </View>
         <View style={styles.details}>
           <Text style={styles.title}>{product.title}</Text>

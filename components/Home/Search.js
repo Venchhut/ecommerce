@@ -31,8 +31,6 @@ const Search = () => {
         />
         <TextInput
           style={styles.searchInput}
-          value=""
-          onPressIn={() => navigation.navigate("Search")}
           placeholder="Search"
           placeholderTextColor="gray"
         />

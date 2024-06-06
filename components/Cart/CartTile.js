@@ -23,7 +23,12 @@ const CartTile = ({ item, updateQuantity, deleteItem }) => {
     <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: item.Product.image }}
+          source={{
+            uri: item.Product.image.replace(
+              "http://localhost:8800/",
+              "http://192.168.1.79:8800/"
+            ),
+          }}
           resizeMode="cover"
           style={styles.productImg}
         />

@@ -9,7 +9,7 @@ const Heading = ({ title, navigateTo }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>New</Text>
+        <Text style={styles.headerTitle}>Latest Product</Text>
         <TouchableOpacity onPress={() => navigation.navigate("Product")}>
           <Text style={styles.title}>See All</Text>
         </TouchableOpacity>
