@@ -34,9 +34,10 @@ const Wishlist = () => {
 
   const deleteFavorite = async (productId) => {
     try {
+      console.log(`Attempting to delete product with ID: ${productId}`);
       await axiosInstanceWithAuth.delete(`/api/wishlist/${productId}`);
       setFavoritesData((prevData) =>
-        prevData.filter((item) => item.id !== productId)
+        prevData.filter((item) => item.Product.id !== productId)
       );
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -92,7 +93,7 @@ const Wishlist = () => {
             </View>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={() => deleteFavorite(item.id)}>
+        <TouchableOpacity onPress={() => deleteFavorite(id)}>
           <SimpleLineIcons name="trash" size={24} color="black" />
         </TouchableOpacity>
       </View>
@@ -110,11 +111,15 @@ const Wishlist = () => {
         </TouchableOpacity>
         <Text style={styles.title}>Favorites</Text>
       </View>
-      <FlatList
-        data={favoritesData}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
+      {favoritesData.length === 0 ? (
+        <Text style={styles.emptyMessage}>Your wishlist is empty.</Text>
+      ) : (
+        <FlatList
+          data={favoritesData}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -181,5 +186,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.tertiary,
     marginTop: 3,
+  },
+  emptyMessage: {
+    fontSize: 24,
+    color: COLORS.tertiary,
+    textAlign: "center",
+    marginTop: "60%",
+
+    alignItems: "center", // Align text horizontally
+    justifyContent: "center", // Align text vertically
   },
 });

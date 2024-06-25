@@ -69,6 +69,17 @@ const ProductDetail = () => {
       console.error("Error adding to cart", error);
     }
   };
+  const handleAddFavorite = async () => {
+    try {
+      const createAddFavorite = await axiosInstanceWithAuth.post(
+        "/api/wishlist",
+        { productId: product.id }
+      );
+      console.log(createAddFavorite.data);
+    } catch (error) {
+      console.error("Error adding to wishlist", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -77,7 +88,7 @@ const ProductDetail = () => {
           <Ionicons name="chevron-back-circle" size={30} color={COLORS.black} />
         </TouchableOpacity>
         <Text style={styles.title}>Product Details</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleAddFavorite}>
           <MaterialIcons name="favorite-border" size={30} />
         </TouchableOpacity>
       </View>

@@ -43,42 +43,59 @@ const CartList = () => {
     setTotalPrice(total.toFixed(2));
   };
 
-  const updateQuantity = (id, newQuantity) => {
-    const newData = cart.map((item) => {
-      if (item.id === id) {
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    });
-    setCart(newData);
+  const updateQuantity = async (id, action) => {
+    try {
+      const res = await axiosInstanceWithAuth.put(`/api/cart/update/${id}`, {
+        action,
+      });
+      setCart(cart.map((item) => (item.id === id ? res.data : item)));
+    } catch (error) {
+      console.error(`Failed to ${action} quantity:`, error);
+    }
+  };
+
+  const deleteCartItem = async (id) => {
+    try {
+      await axiosInstanceWithAuth.delete(`/api/cart/delete/${id}`);
+      setCart(cart.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Failed to delete cart item:", error);
+    }
   };
 
   const onCheckout = () => {
-    console.log("Checkout button pressed");
-    // Add your checkout functionality here
+    navigation.navigate("PaymentMethods", { productCart: cart });
   };
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={cart}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <CartTile item={item} updateQuantity={updateQuantity} />
-        )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
-      <View style={styles.summaryContainer}>
-        <Text style={styles.summaryText}>Total Cost: ${totalPrice}</Text>
-        <TouchableOpacity
-          style={styles.checkoutButton}
-          onPress={() =>
-            navigation.navigate("PaymentMethods", { productCart: cart })
-          }
-        >
-          <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
-        </TouchableOpacity>
-      </View>
+      {cart.length === 0 ? (
+        <Text style={styles.emptyCartText}>Your cart is empty</Text>
+      ) : (
+        <>
+          <FlatList
+            data={cart}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <CartTile
+                item={item}
+                updateQuantity={updateQuantity}
+                deleteCartItem={deleteCartItem}
+              />
+            )}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+          />
+          <View style={styles.summaryContainer}>
+            <Text style={styles.summaryText}>Total Cost: ${totalPrice}</Text>
+            <TouchableOpacity
+              style={styles.checkoutButton}
+              onPress={onCheckout}
+            >
+              <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </View>
   );
 };
@@ -87,6 +104,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.lightWhite,
+  },
+  emptyCartText: {
+    fontSize: 24,
+    textAlign: "center",
+    marginTop: "60%",
+    color: COLORS.tertiary,
   },
   separator: {
     height: 16,

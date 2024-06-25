@@ -2,15 +2,19 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 
 const OrderTile = ({ item }) => {
+  console.log("item", item);
+  const product = item.Product || {}; // If Product is undefined, default to an empty object
   return (
     <View style={styles.container}>
-      <Image source={{ uri: item.productId.imageUrl }} style={styles.image} />
+      <Image source={{ uri: product.image }} style={styles.image} />
       <View style={styles.detailsContainer}>
-        <Text style={styles.title}>{item.productId.title}</Text>
+        <Text style={styles.title}>{product.title}</Text>
         <Text style={styles.category}>
-          {item.productId.category} | Qty: {item.quantity} pcs
+          {product.category} | Qty: {item.quantity} pcs
         </Text>
-        <Text style={styles.price}>${item.productId.price.toFixed(2)}</Text>
+        <Text style={styles.price}>
+          ${parseFloat(product.price).toFixed(2)}
+        </Text>
       </View>
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Track Order</Text>

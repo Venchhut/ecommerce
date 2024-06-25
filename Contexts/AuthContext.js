@@ -18,7 +18,7 @@ const AuthProvider = ({ children }) => {
           base64.decode(authDataString.split(".")[1])
         );
         if (decodedToken && decodedToken.id) {
-          setUserIdFromToken(decodedToken.id); // Change to setUserIdFromToken
+          setUserIdFromToken(decodedToken.id);
         }
       }
     } catch (err) {

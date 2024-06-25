@@ -1,37 +1,88 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  StyleSheet,
   View,
   Text,
   TextInput,
   Button,
-  StyleSheet,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { COLORS } from "../../constants";
+import { useAuthContext } from "../../Contexts/AuthContext";
 
-const ProfileScreen = () => {
-  // Mock data
-  const [profile, setProfile] = useState({
-    name: "Esther Howard",
-    phoneNumber: "603.555.0123",
-    email: "example@gmail.com",
-    gender: "",
-  });
+const YourProfile = () => {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [newPassword, setNewPassword] = useState("");
+  const { axiosInstanceWithAuth, userIdFromToken } = useAuthContext();
 
-  // Handlers
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axiosInstanceWithAuth.get(
+          `/api/user/${userIdFromToken}`
+        );
+        const { name, email, phoneNumber } = res.data; // Exclude password from fetched data
+        setProfile({ name, email, phoneNumber });
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [axiosInstanceWithAuth, userIdFromToken]);
+
   const handleInputChange = (field, value) => {
     setProfile({ ...profile, [field]: value });
   };
 
-  const handleUpdate = () => {
-    // Update profile logic here
-    console.log("Profile updated:", profile);
+  const handleUpdate = async () => {
+    try {
+      const updateData = {
+        name: profile.name,
+        email: profile.email,
+        phoneNumber: profile.phoneNumber,
+      };
+      if (newPassword) {
+        updateData.password = newPassword;
+      }
+      const res = await axiosInstanceWithAuth.patch(
+        `/api/user/${userIdFromToken}`,
+        updateData
+      );
+      setProfile(res.data);
+      setNewPassword(""); // Clear the password field after update
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      console.error("Response data:", error.response.data);
+    }
   };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Profile not found</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
         <Text style={styles.backButtonText}>←</Text>
       </TouchableOpacity>
       <Text style={styles.title}>Your Profile</Text>
@@ -54,13 +105,11 @@ const ProfileScreen = () => {
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Phone Number</Text>
-        <View style={styles.phoneNumberContainer}>
-          <TextInput
-            style={styles.phoneNumberInput}
-            value={profile.phoneNumber}
-            onChangeText={(value) => handleInputChange("phoneNumber", value)}
-          />
-        </View>
+        <TextInput
+          style={styles.input}
+          value={profile.phoneNumber}
+          onChangeText={(value) => handleInputChange("phoneNumber", value)}
+        />
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
@@ -71,11 +120,13 @@ const ProfileScreen = () => {
         />
       </View>
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Gender</Text>
+        <Text style={styles.label}>Password</Text>
         <TextInput
           style={styles.input}
-          value={profile.gender}
-          onChangeText={(value) => handleInputChange("gender", value)}
+          value={newPassword}
+          secureTextEntry={true}
+          onChangeText={(value) => setNewPassword(value)}
+          placeholder="Enter new password"
         />
       </View>
       <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
@@ -114,10 +165,9 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   editIcon: {
-    position: "absolute",
-    bottom: 0,
-    right: 10,
-    backgroundColor: "#FF3B30",
+    bottom: 20,
+    left: 20,
+    backgroundColor: COLORS.primary,
     borderRadius: 15,
     padding: 5,
   },
@@ -140,23 +190,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7F7F7",
     fontSize: 14,
   },
-  phoneNumberContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  phoneNumberInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#E8E8E8",
-    borderRadius: 8,
-    padding: 14,
-    backgroundColor: "#F7F7F7",
-    fontSize: 14,
-  },
-  changeText: {
-    color: "#FF3B30",
-    fontSize: 14,
-  },
   updateButton: {
     backgroundColor: "#FF3B30",
     borderRadius: 8,
@@ -171,4 +204,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default YourProfile;

@@ -1,48 +1,84 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
-import React, { useState } from "react";
-import addresses from "./mockData";
+import React, { useEffect, useState } from "react";
+import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
+import { useAuthContext } from "../../Contexts/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+
 const Address = () => {
+  const { axiosInstanceWithAuth } = useAuthContext();
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
 
-  const handleAddressSelect = (id) => {
-    setSelectedAddress(id);
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstanceWithAuth.get("/api/order/address/");
+      setData(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
-  const navigation = useNavigation();
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.addressItem,
-        selectedAddress === item.id && styles.selectedAddressItem,
-      ]}
-      onPress={() => handleAddressSelect(item.id)}
-    >
-      <View style={styles.radioCircle}>
-        {selectedAddress === item.id && <View style={styles.selectedRb} />}
+
+  const handleAddressSelect = async (id) => {
+    setSelectedAddress(id);
+    try {
+      await axiosInstanceWithAuth.put(`/api/order/address/${id}`);
+    } catch (error) {
+      console.error("Error updating address:", error);
+    }
+  };
+
+  const handleAddNewAddress = async () => {
+    try {
+      // Perform validations on new address fields if necessary
+
+      // Example new address data
+      const newAddressData = {
+        street_address: "New Street",
+        city: "New City",
+        country: "New Country",
+      };
+
+      await axiosInstanceWithAuth.post("/api/order/address/", newAddressData);
+      // After successfully adding the new address, fetch updated data
+      fetchData();
+    } catch (error) {
+      console.error("Error adding new address:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
-      <View style={styles.addressDetails}>
-        <Text style={styles.addressLabel}>{item.label}</Text>
-        <Text style={styles.addressText}>{item.address}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>Shipping Address</Text>
-      <FlatList
-        data={addresses}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
-      <TouchableOpacity style={styles.addButton}>
+      {data.map((item) => (
+        <TouchableOpacity
+          style={[
+            styles.addressItem,
+            selectedAddress === item.id && styles.selectedAddressItem,
+          ]}
+          onPress={() => handleAddressSelect(item.id)}
+          key={item.id}
+        >
+          {/* Address item UI */}
+          <Text style={styles.addressLabel}>
+            {item.street_address}, {item.city}, {item.country}
+          </Text>
+        </TouchableOpacity>
+      ))}
+      <TouchableOpacity style={styles.addButton} onPress={handleAddNewAddress}>
         <Text style={styles.addButtonText}>+ Add New Shipping Address</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.applyButton}>
@@ -54,7 +90,7 @@ const Address = () => {
 
 export default Address;
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     padding: 20,
@@ -85,33 +121,11 @@ const styles = StyleSheet.create({
   selectedAddressItem: {
     borderColor: "#ff4757",
   },
-  radioCircle: {
-    height: 24,
-    width: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#ff4757",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 15,
-  },
-  selectedRb: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#ff4757",
-  },
-  addressDetails: {
-    flex: 1,
-  },
   addressLabel: {
     fontWeight: "bold",
     fontSize: 16,
     marginBottom: 5,
     color: "#333",
-  },
-  addressText: {
-    color: "#666",
   },
   addButton: {
     backgroundColor: "#fff",
@@ -137,4 +151,4 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
-});
+};
