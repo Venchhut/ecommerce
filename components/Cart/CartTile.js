@@ -5,17 +5,16 @@ import { AntDesign, Ionicons } from "@expo/vector-icons";
 
 const CartTile = ({ item, updateQuantity, deleteItem }) => {
   const [quantity, setQuantity] = useState(item.quantity);
-  const increaseQuantity = () => {
-    const newQuantity = quantity + 1;
-    setQuantity(newQuantity);
-    updateQuantity(item._id, newQuantity);
-  };
 
-  const decreaseQuantity = () => {
-    if (quantity > 1) {
+  const handleQuantityChange = (action) => {
+    if (action === "increase") {
+      const newQuantity = quantity + 1;
+      setQuantity(newQuantity);
+      updateQuantity(item.Product.id, "increase");
+    } else if (action === "decrease" && quantity > 1) {
       const newQuantity = quantity - 1;
       setQuantity(newQuantity);
-      updateQuantity(item._id, newQuantity);
+      updateQuantity(item.Product.id, "decrease");
     }
   };
 
@@ -45,15 +44,15 @@ const CartTile = ({ item, updateQuantity, deleteItem }) => {
         </Text>
       </View>
       <View style={styles.quantityContainer}>
-        <TouchableOpacity onPress={decreaseQuantity}>
+        <TouchableOpacity onPress={() => handleQuantityChange("decrease")}>
           <AntDesign name="minus" size={24} color={COLORS.tertiary} />
         </TouchableOpacity>
         <Text style={styles.quantity}>{quantity}</Text>
-        <TouchableOpacity onPress={increaseQuantity}>
+        <TouchableOpacity onPress={() => handleQuantityChange("increase")}>
           <AntDesign name="plus" size={20} color={COLORS.tertiary} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => deleteItem(item._id)}>
+      <TouchableOpacity onPress={() => deleteItem(item.Product.id)}>
         <Ionicons name="trash-bin" size={20} color={COLORS.tertiary} />
       </TouchableOpacity>
     </View>

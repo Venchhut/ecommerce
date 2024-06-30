@@ -94,7 +94,7 @@ const Wishlist = () => {
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => deleteFavorite(id)}>
-          <SimpleLineIcons name="trash" size={24} color="black" />
+          <Ionicons name="trash-bin" size={24} color={COLORS.tertiary} />
         </TouchableOpacity>
       </View>
     );

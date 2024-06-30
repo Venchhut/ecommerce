@@ -28,40 +28,55 @@ const CartList = () => {
         }
       };
       fetchAllCart();
-    }, [])
+    }, [axiosInstanceWithAuth])
   );
 
   useEffect(() => {
     calculateTotalPrice();
   }, [cart]);
 
-  const calculateTotalPrice = () => {
+  const calculateTotalPrice = useCallback(() => {
     const total = cart.reduce((sum, item) => {
       const price = parseFloat(item.Product.price);
       return sum + price * item.quantity;
     }, 0);
     setTotalPrice(total.toFixed(2));
-  };
+  }, [cart]);
 
-  const updateQuantity = async (id, action) => {
-    try {
-      const res = await axiosInstanceWithAuth.put(`/api/cart/update/${id}`, {
-        action,
-      });
-      setCart(cart.map((item) => (item.id === id ? res.data : item)));
-    } catch (error) {
-      console.error(`Failed to ${action} quantity:`, error);
-    }
-  };
+  const updateQuantity = useCallback(
+    async (productId, action) => {
+      try {
+        const res = await axiosInstanceWithAuth.patch(
+          `/api/cart/update/${productId}`,
+          {
+            action,
+          }
+        );
+        setCart((prevCart) =>
+          prevCart.map((item) =>
+            item.Product.id === productId ? res.data : item
+          )
+        );
+      } catch (error) {
+        console.error(`Failed to ${action} quantity:`, error);
+      }
+    },
+    [axiosInstanceWithAuth]
+  );
 
-  const deleteCartItem = async (id) => {
-    try {
-      await axiosInstanceWithAuth.delete(`/api/cart/delete/${id}`);
-      setCart(cart.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error("Failed to delete cart item:", error);
-    }
-  };
+  const deleteCartItem = useCallback(
+    async (productId) => {
+      try {
+        await axiosInstanceWithAuth.delete(`/api/cart/delete/${productId}`);
+        setCart((prevCart) =>
+          prevCart.filter((item) => item.Product.id !== productId)
+        );
+      } catch (error) {
+        console.error("Failed to delete cart item:", error);
+      }
+    },
+    [axiosInstanceWithAuth]
+  );
 
   const onCheckout = () => {
     navigation.navigate("PaymentMethods", { productCart: cart });
@@ -75,12 +90,12 @@ const CartList = () => {
         <>
           <FlatList
             data={cart}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.Product.id.toString()}
             renderItem={({ item }) => (
               <CartTile
                 item={item}
                 updateQuantity={updateQuantity}
-                deleteCartItem={deleteCartItem}
+                deleteItem={deleteCartItem}
               />
             )}
             ItemSeparatorComponent={() => <View style={styles.separator} />}

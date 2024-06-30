@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -5,13 +6,21 @@ import {
   TextInput,
   Text,
 } from "react-native";
-import React from "react";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { COLORS, SIZES } from "../../constants";
 import { useNavigation } from "@react-navigation/native";
 
 const Search = () => {
   const navigation = useNavigation();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigation.navigate("SearchResultsScreen", { searchQuery });
+      setSearchQuery("");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.locationContainer}>
@@ -33,8 +42,11 @@ const Search = () => {
           style={styles.searchInput}
           placeholder="Search"
           placeholderTextColor="gray"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={handleSearch} // Trigger search when user submits
         />
-        <TouchableOpacity style={styles.filterIcon} onPress={() => {}}>
+        <TouchableOpacity style={styles.filterIcon} onPress={handleSearch}>
           <Ionicons name="options-outline" size={24} color="black" />
         </TouchableOpacity>
       </View>

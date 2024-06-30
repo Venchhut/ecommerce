@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { SIZES, COLORS } from "../../constants";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -8,16 +8,37 @@ import { useAuthContext } from "../../Contexts/AuthContext";
 const ProductCardView = ({ product }) => {
   const navigation = useNavigation();
   const { axiosInstanceWithAuth } = useAuthContext();
+  const [isFavorite, setIsFavorite] = useState(false);
 
-  const handleAddFavorite = async () => {
+  // Check if the product is already in the wishlist
+  useEffect(() => {
+    const checkIfFavorite = async () => {
+      try {
+        const res = await axiosInstanceWithAuth.get("/api/wishlist/allwish");
+        const isFavorite = res.data.some(
+          (item) => item.Product.id === product.id
+        );
+        setIsFavorite(isFavorite);
+      } catch (error) {
+        console.error("Error checking wishlist status", error);
+      }
+    };
+    checkIfFavorite();
+  }, [axiosInstanceWithAuth, product.id]);
+
+  // ! add to wishlist or remove it from wishlist
+  const handleToggleFavorite = async () => {
     try {
-      const createAddFavorite = await axiosInstanceWithAuth.post(
-        "/api/wishlist",
-        { productId: product.id }
-      );
-      console.log(createAddFavorite.data);
+      if (isFavorite) {
+        await axiosInstanceWithAuth.delete(`/api/wishlist/${product.id}`);
+      } else {
+        await axiosInstanceWithAuth.post("/api/wishlist", {
+          productId: product.id,
+        });
+      }
+      setIsFavorite(!isFavorite);
     } catch (error) {
-      console.error("Error adding to wishlist", error);
+      console.error("Error toggling wishlist status", error);
     }
   };
 
@@ -43,11 +64,11 @@ const ProductCardView = ({ product }) => {
           <Text style={styles.title}>{product.title}</Text>
           <Text style={styles.price}>${product.price}</Text>
         </View>
-        <TouchableOpacity style={styles.addBtn} onPress={handleAddFavorite}>
+        <TouchableOpacity style={styles.addBtn} onPress={handleToggleFavorite}>
           <MaterialIcons
-            name="favorite-border"
+            name={isFavorite ? "favorite" : "favorite-border"}
             size={24}
-            color={COLORS.black}
+            color={isFavorite ? COLORS.primary : COLORS.black}
           />
         </TouchableOpacity>
       </View>

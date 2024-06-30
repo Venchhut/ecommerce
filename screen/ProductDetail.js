@@ -21,12 +21,23 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   useEffect(() => {
     const fetchProductDetail = async () => {
       try {
         const response = await axiosInstance.get(`/api/product/${productId}`);
         setProduct(response.data);
+
+        // Check if the product is in the wishlist
+        const wishlistResponse = await axiosInstanceWithAuth.get(
+          "/api/wishlist/allwish"
+        );
+        const isFavorite = wishlistResponse.data.some(
+          (item) => item.Product.id === productId
+        );
+        setIsFavorite(isFavorite);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -34,7 +45,41 @@ const ProductDetail = () => {
       }
     };
     fetchProductDetail();
-  }, [productId]);
+  }, [productId, axiosInstance, axiosInstanceWithAuth]);
+
+  const handleAddCart = async () => {
+    try {
+      const response = await axiosInstanceWithAuth.post(
+        `/api/cart/add/${productId}`,
+        {
+          productId: product.id,
+          quantity: 1,
+        }
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error adding to cart", error);
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    try {
+      if (isFavorite) {
+        await axiosInstanceWithAuth.delete(`/api/wishlist/${product.id}`);
+      } else {
+        await axiosInstanceWithAuth.post("/api/wishlist", {
+          productId: product.id,
+        });
+      }
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error("Error toggling wishlist status", error);
+    }
+  };
+
+  const toggleDescription = () => {
+    setShowFullDescription(!showFullDescription);
+  };
 
   if (loading) {
     return (
@@ -55,31 +100,8 @@ const ProductDetail = () => {
   if (!product) {
     return null;
   }
-  const handleAddCart = async () => {
-    try {
-      const response = await axiosInstanceWithAuth.post(
-        `/api/cart/add/${productId}`,
-        {
-          productId: product.id,
-          quantity: 1,
-        }
-      );
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error adding to cart", error);
-    }
-  };
-  const handleAddFavorite = async () => {
-    try {
-      const createAddFavorite = await axiosInstanceWithAuth.post(
-        "/api/wishlist",
-        { productId: product.id }
-      );
-      console.log(createAddFavorite.data);
-    } catch (error) {
-      console.error("Error adding to wishlist", error);
-    }
-  };
+
+  const truncatedDescription = product.Desc.slice(0, 100) + "...";
 
   return (
     <View style={styles.container}>
@@ -88,8 +110,12 @@ const ProductDetail = () => {
           <Ionicons name="chevron-back-circle" size={30} color={COLORS.black} />
         </TouchableOpacity>
         <Text style={styles.title}>Product Details</Text>
-        <TouchableOpacity onPress={handleAddFavorite}>
-          <MaterialIcons name="favorite-border" size={30} />
+        <TouchableOpacity onPress={handleToggleFavorite}>
+          <MaterialIcons
+            name={isFavorite ? "favorite" : "favorite-border"}
+            size={30}
+            color={isFavorite ? COLORS.primary : COLORS.black}
+          />
         </TouchableOpacity>
       </View>
       <ScrollView>
@@ -119,25 +145,32 @@ const ProductDetail = () => {
           </View>
           <View style={styles.descriptionWrapper}>
             <Text style={styles.description}>Description</Text>
-            <Text style={styles.descText}>{product.Desc}</Text>
-          </View>
-          <View style={styles.cartRow}>
-            <View style={{ color: "white" }}>
-              <Text style={styles.totalPriceText}>Total Price</Text>
-              <Text style={styles.priceText}>${product.price}</Text>
-            </View>
-            <TouchableOpacity onPress={handleAddCart} style={styles.cartBtn}>
-              <Feather
-                name="shopping-cart"
-                size={24}
-                color="black"
-                style={styles.cartText}
-              />
-              <Text style={styles.cartText}>Add to Cart</Text>
+            <Text style={styles.descText}>
+              {showFullDescription ? product.Desc : truncatedDescription}
+            </Text>
+            <TouchableOpacity onPress={toggleDescription}>
+              <Text style={styles.toggleText}>
+                {showFullDescription ? "See Less" : "See More"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
+      <View style={styles.cartRow}>
+        <View>
+          <Text style={styles.totalPriceText}>Total Price</Text>
+          <Text style={styles.priceText}>${product.price}</Text>
+        </View>
+        <TouchableOpacity onPress={handleAddCart} style={styles.cartBtn}>
+          <Feather
+            name="shopping-cart"
+            size={24}
+            color="black"
+            style={styles.cartText}
+          />
+          <Text style={styles.cartText}>Add to Cart</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -225,6 +258,12 @@ const styles = StyleSheet.create({
     textAlign: "justify",
     marginBottom: SIZES.small,
   },
+  toggleText: {
+    color: COLORS.tertiary,
+    fontSize: SIZES.medium,
+    fontWeight: "bold",
+    textAlign: "right",
+  },
   cartRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -232,7 +271,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 20,
     paddingBottom: 20,
-    marginTop: "20%",
+    // marginTop: "20%",
   },
   cartBtn: {
     flexDirection: "row",
@@ -254,6 +293,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "black",
   },
+
   priceText: {
     fontSize: 16,
     fontWeight: "bold",

@@ -20,6 +20,7 @@ import ProductCategory from "./screen/ProductCategory";
 import Login from "./screen/Auth/Login";
 import SignUp from "./screen/Auth/Signup";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import SearchResultsScreen from "./screen/SearchResultsScreen";
 const STRIPE_KEY =
   "pk_test_51OWHOqFraYvbLw8OjTwVjEP64z8mEUCDnGJ7KFia9qXmAXL4NxfjSIlfx0afsOH5zgpk8GaRlKTSIXwbo5yU1hYy00kh2ncCfu";
 const Stack = createNativeStackNavigator();
@@ -58,6 +59,12 @@ const AuthConsumer = () => {
           <Stack.Screen
             name="ProductDetail"
             component={ProductDetail}
+            options={{ headerShown: false }}
+          />
+
+          <Stack.Screen
+            name="SearchResultsScreen"
+            component={SearchResultsScreen}
             options={{ headerShown: false }}
           />
 
