@@ -41,7 +41,7 @@ const Login = () => {
         Alert.alert("Login failed", "Invalid credentials. Please try again.");
       }
     } catch (error) {
-      console.error("Error logging in:", error);
+      // console.error("Error logging in:", error);
 
       if (error.response) {
         Alert.alert(

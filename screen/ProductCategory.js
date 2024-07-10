@@ -67,9 +67,9 @@ const ProductCategory = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back-circle" size={30} color={COLORS.black} />
         </TouchableOpacity>
-        <Text style={styles.title}>Product Details</Text>
+        <Text style={styles.title}>Products</Text>
         <TouchableOpacity>
-          <MaterialIcons name="favorite-border" size={30} />
+          {/* <MaterialIcons name="favorite-border" size={30} /> */}
         </TouchableOpacity>
       </View>
       <FlatList

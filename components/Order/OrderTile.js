@@ -1,72 +1,113 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-
+import { SIZES, COLORS } from "../../constants";
 const OrderTile = ({ item }) => {
-  console.log("item", item);
-  const product = item.Product || {}; // If Product is undefined, default to an empty object
+  const product = item.Product || {};
+  const imageUrl = product.image
+    ? product.image.replace(
+        "http://localhost:8800/",
+        "http://192.168.1.79:8800/"
+      )
+    : null;
+
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: product.image }} style={styles.image} />
-      <View style={styles.detailsContainer}>
-        <Text style={styles.title}>{product.title}</Text>
-        <Text style={styles.category}>
-          {product.category} | Qty: {item.quantity} pcs
-        </Text>
-        <Text style={styles.price}>
-          ${parseFloat(product.price).toFixed(2)}
-        </Text>
+    <View style={styles.favcontainer}>
+      <View style={styles.productInfo}>
+        <View style={styles.imageContainer}>
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.productImg} />
+          ) : (
+            <View style={styles.placeholderImage} />
+          )}
+        </View>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("ProductDetail", { productId: product.id })
+          }
+        >
+          <View style={styles.textContainer}>
+            <Text style={styles.productTxt} numberOfLines={1}>
+              {product.title || "No Title"}
+            </Text>
+            <Text style={styles.supplierTxt} numberOfLines={1}>
+              Qty: {item.quantity ? `${item.quantity} pcs` : "No Quantity"}
+            </Text>
+            <Text style={styles.price}>
+              ${product.price ? parseFloat(product.price).toFixed(2) : "0.00"}
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Track Order</Text>
+      <TouchableOpacity style={styles.trackBtn}>
+        <Text style={styles.trackBtnText}>Track Order</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  favcontainer: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    backgroundColor: "white",
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 2,
+    justifyContent: "space-between",
+    marginBottom: 15,
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: "#FFF",
+    shadowColor: COLORS.black,
   },
-  image: {
+  productInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  imageContainer: {
+    width: 70,
+    height: 70,
+    backgroundColor: COLORS.secondary,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  productImg: {
+    width: "100%",
+    height: "100%",
+  },
+  placeholderImage: {
     width: 50,
     height: 50,
     borderRadius: 8,
-    marginRight: 16,
+    backgroundColor: COLORS.gray,
   },
-  detailsContainer: {
+  textContainer: {
     flex: 1,
+    marginHorizontal: 15,
   },
-  title: {
+  productTxt: {
     fontSize: 16,
     fontWeight: "bold",
+    color: COLORS.tertiary,
   },
-  category: {
+  supplierTxt: {
     fontSize: 14,
-    color: "#666",
-    marginVertical: 4,
+    color: COLORS.tertiary,
+    marginTop: 3,
   },
   price: {
     fontSize: 14,
-    fontWeight: "bold",
+    color: COLORS.tertiary,
+    marginTop: 3,
   },
-  button: {
-    backgroundColor: "#FF3D00",
+  trackBtn: {
+    backgroundColor: COLORS.primary,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 20,
+    borderRadius: 10,
   },
-  buttonText: {
+  trackBtnText: {
     color: "white",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "bold",
   },
 });

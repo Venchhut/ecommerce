@@ -6,6 +6,7 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { COLORS, SIZES } from "../constants";
@@ -56,8 +57,12 @@ const ProductDetail = () => {
           quantity: 1,
         }
       );
+      Alert.alert("Success", "Product added to cart successfully!", [
+        { text: "OK", onPress: () => navigation.navigate("Home") },
+      ]);
       console.log(response.data);
     } catch (error) {
+      Alert.alert("Error", "Error adding to cart. Please try again.");
       console.error("Error adding to cart", error);
     }
   };

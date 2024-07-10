@@ -1,9 +1,10 @@
+// screens/Address.js
 import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const Address = () => {
+const Address = ({ navigation }) => {
   const { axiosInstanceWithAuth } = useAuthContext();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
@@ -18,7 +19,7 @@ const Address = () => {
       const response = await axiosInstanceWithAuth.get("/api/order/address/");
       setData(response.data);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      // console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -33,23 +34,8 @@ const Address = () => {
     }
   };
 
-  const handleAddNewAddress = async () => {
-    try {
-      // Perform validations on new address fields if necessary
-
-      // Example new address data
-      const newAddressData = {
-        street_address: "New Street",
-        city: "New City",
-        country: "New Country",
-      };
-
-      await axiosInstanceWithAuth.post("/api/order/address/", newAddressData);
-      // After successfully adding the new address, fetch updated data
-      fetchData();
-    } catch (error) {
-      console.error("Error adding new address:", error);
-    }
+  const handleAddNewAddress = () => {
+    navigation.navigate("NewAddress");
   };
 
   if (loading) {
@@ -72,7 +58,6 @@ const Address = () => {
           onPress={() => handleAddressSelect(item.id)}
           key={item.id}
         >
-          {/* Address item UI */}
           <Text style={styles.addressLabel}>
             {item.street_address}, {item.city}, {item.country}
           </Text>

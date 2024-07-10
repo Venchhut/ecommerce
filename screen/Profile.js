@@ -1,30 +1,54 @@
-import React, { useEffect, useState, useContext } from "react";
-import { View, StyleSheet, Image, Text, TouchableOpacity } from "react-native";
+import React, { useEffect, useState, useContext, useCallback } from "react";
+import {
+  View,
+  StyleSheet,
+  Image,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { MaterialCommunityIcons, AntDesign } from "react-native-vector-icons";
 import { COLORS, SIZES } from "../constants";
 import { StatusBar } from "expo-status-bar";
-import { CartContext } from "../components/Cart/CartContext";
 import { useAuthContext } from "../Contexts/AuthContext";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
-  const { count, setCount } = useContext(CartContext);
-  const { setAuth } = useAuthContext();
+  const [loading, setLoading] = useState(true);
+  const { axiosInstanceWithAuth, userIdFromToken, setAuth } = useAuthContext();
   const navigation = useNavigation();
 
-  useEffect(() => {
-    checkUserExistence();
-  }, []);
+  const fetchUserData = useCallback(
+    async (showLoading = true) => {
+      if (showLoading) {
+        setLoading(true);
+      }
+      try {
+        const res = await axiosInstanceWithAuth.get(
+          `/api/user/${userIdFromToken}`
+        );
+        setUserData(res.data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        if (showLoading) {
+          setLoading(false);
+        }
+      }
+    },
+    [axiosInstanceWithAuth, userIdFromToken]
+  );
 
-  const checkUserExistence = async () => {
-    // Placeholder for fetching user data
-    const user = {
-      username: "Esther Howard",
-      email: "esther.howard@example.com",
-    };
-    setUserData(user);
-  };
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData(false);
+    }, [fetchUserData])
+  );
 
   const handlePress = (screen) => {
     if (screen === "Login") {
@@ -43,8 +67,16 @@ const Profile = () => {
     },
     { name: "My Orders", icon: "clipboard-list-outline", screen: "MyOrders" },
     { name: "Settings", icon: "cog-outline", screen: "Settings" },
-    { name: "Log out", icon: "help-circle-outline", screen: "Login" },
+    { name: "Log out", icon: "logout", screen: "Login" },
   ];
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -56,11 +88,8 @@ const Profile = () => {
           }} // Replace with the actual image URL
           style={styles.profileImage}
         />
-        <TouchableOpacity style={styles.editIcon}>
-          <AntDesign name="edit" size={26} color={COLORS.primary} />
-        </TouchableOpacity>
         <Text style={styles.profileName}>
-          {userData ? userData.username : "Please login"}
+          {userData ? userData.name : "Please login"}
         </Text>
       </View>
       <View style={styles.menuWrapper}>
@@ -102,6 +131,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   editIcon: {
+    position: "absolute",
     bottom: 10,
     left: 20,
     backgroundColor: COLORS.lightWhite,

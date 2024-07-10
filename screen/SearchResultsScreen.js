@@ -1,44 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, FlatList } from "react-native";
-
+import React from "react";
+import { StyleSheet, View, FlatList, SafeAreaView, Text } from "react-native";
+import { SIZES, COLORS } from "../constants/index";
+import ProductCardView from "../components/Product/ProductCardView";
 const SearchResultsScreen = ({ route }) => {
-  const { searchQuery } = route.params;
-  const [searchResults, setSearchResults] = useState([]);
-
-  const products = [
-    { id: 1, title: "Canon Camera", category: "Electronics", price: "$180.00" },
-    { id: 2, title: "Arm Chair", category: "Chair", price: "$120.00" },
-    { id: 3, title: "Nike Pegasus 39", category: "Shoes", price: "$90.00" },
-    { id: 4, title: "Light Brown Coat", category: "Clothes", price: "$120.00" },
-  ];
-
-  useEffect(() => {
-    const results = products.filter((product) =>
-      product.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setSearchResults(results);
-  }, [searchQuery]);
+  const { filteredProducts } = route.params;
 
   return (
-    <View style={styles.container}>
-      {searchResults.length === 0 ? (
-        <Text style={styles.noResultsText}>
-          No results found for "{searchQuery}"
-        </Text>
+    <SafeAreaView style={styles.container}>
+      {filteredProducts.length === 0 ? (
+        <Text style={styles.noResultsText}>No results found</Text>
       ) : (
         <FlatList
-          data={searchResults}
+          data={filteredProducts}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <View style={styles.searchResultItem}>
-              <Text>{item.title}</Text>
-              <Text>{item.category}</Text>
-              <Text>{item.price}</Text>
+            <View style={styles.productCardContainer}>
+              <ProductCardView product={item} />
             </View>
           )}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -49,11 +33,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  searchResultItem: {
-    backgroundColor: "white",
-    padding: 8,
-    borderRadius: 8,
-    marginVertical: 4,
+  productCardContainer: {
+    flex: 1,
+    margin: 8,
+  },
+  row: {
+    justifyContent: "space-between",
   },
   noResultsText: {
     textAlign: "center",

@@ -32,11 +32,11 @@ const SignUp = () => {
         name,
         email,
         password,
-        phoneNumber: phone, // Fixed this line
+        phoneNumber: phone,
       });
       if (res.status === 201) {
-        // Fixed this line
-        navigation.navigate("Login"); // Ensure "Login" is the correct route name
+        Alert.alert("Success", "Your account has been created successfully.");
+        navigation.navigate("Login");
       }
     } catch (error) {
       Alert.alert(
@@ -49,7 +49,7 @@ const SignUp = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Create Account</Text>
-      <Text style={styles.label}>User Name</Text>
+      <Text style={styles.label}>UserName</Text>
       <TextInput
         style={styles.input}
         placeholder="Ex. John Doe"

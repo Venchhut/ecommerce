@@ -1,11 +1,35 @@
-import React from "react";
-import { View, FlatList, StyleSheet, ActivityIndicator } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  Text,
+} from "react-native";
 import { COLORS, SIZES } from "../../constants";
-import fetchOrders from "../../data/fetchOrders";
 import OrderTile from "./OrderTile";
+import { useAuthContext } from "../../Contexts/AuthContext";
 
 const OrdersList = () => {
-  const { data, isLoading, error } = fetchOrders();
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { axiosInstanceWithAuth } = useAuthContext();
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await axiosInstanceWithAuth.get("/api/order");
+        setData(response.data);
+      } catch (err) {
+        setError("Error fetching orders");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [axiosInstanceWithAuth]);
 
   if (isLoading) {
     return (
@@ -20,7 +44,7 @@ const OrdersList = () => {
   if (error) {
     return (
       <View style={styles.loadingContainer}>
-        <Text>Error fetching orders</Text>
+        <Text>{error}</Text>
       </View>
     );
   }
@@ -29,9 +53,12 @@ const OrdersList = () => {
     <View>
       <FlatList
         data={data}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => <OrderTile item={item} />}
-        vertical={true}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) =>
+          item.OrderItems.map((orderItem) => (
+            <OrderTile key={orderItem.id} item={orderItem} />
+          ))
+        }
         contentContainerStyle={styles.container}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />

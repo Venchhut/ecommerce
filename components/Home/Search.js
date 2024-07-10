@@ -1,23 +1,80 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
   TouchableOpacity,
   TextInput,
   Text,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { COLORS, SIZES } from "../../constants";
 import { useNavigation } from "@react-navigation/native";
+import { useAuthContext } from "../../Contexts/AuthContext";
 
 const Search = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [address, setAddress] = useState(null);
+  const { axiosInstanceWithAuth } = useAuthContext();
+
+  // Fetch all products when the component mounts
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const res = await axiosInstanceWithAuth.get(`/api/product`);
+        setProducts(res.data.products);
+      } catch (error) {
+        console.error("Error fetching products: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [axiosInstanceWithAuth]);
+
+  // Fetch the address data initially and set up a polling mechanism
+  useEffect(() => {
+    const fetchAddress = async () => {
+      setLoading(true);
+      try {
+        const res = await axiosInstanceWithAuth.get(`/api/order/address/`);
+        if (res.data.length > 0) {
+          setAddress(res.data[0]);
+        }
+      } catch (error) {
+        // console.error("Error fetching address: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAddress();
+
+    // Set up polling to update the address every 30 seconds (adjust as needed)
+    const intervalId = setInterval(fetchAddress, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [axiosInstanceWithAuth]);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      navigation.navigate("SearchResultsScreen", { searchQuery });
-      setSearchQuery("");
+      setLoading(true);
+      try {
+        const filteredProducts = products.filter((product) =>
+          product.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        navigation.navigate("SearchResultsScreen", { filteredProducts });
+        setSearchQuery("");
+      } catch (error) {
+        console.error("Error filtering products: ", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -25,7 +82,11 @@ const Search = () => {
     <View style={styles.container}>
       <View style={styles.locationContainer}>
         <Ionicons name="location-sharp" size={16} color="white" />
-        <Text style={styles.locationText}>New York, USA</Text>
+        <Text style={styles.locationText}>
+          {address
+            ? `${address.street_address}, ${address.city}`
+            : "Loading..."}
+        </Text>
         <Ionicons name="chevron-down" size={16} color="white" />
         <TouchableOpacity style={styles.notificationIcon}>
           <Ionicons name="notifications-outline" size={24} color="white" />
@@ -44,11 +105,15 @@ const Search = () => {
           placeholderTextColor="gray"
           value={searchQuery}
           onChangeText={setSearchQuery}
-          onSubmitEditing={handleSearch} // Trigger search when user submits
+          onSubmitEditing={handleSearch}
         />
-        <TouchableOpacity style={styles.filterIcon} onPress={handleSearch}>
-          <Ionicons name="options-outline" size={24} color="black" />
-        </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator size="small" color={COLORS.primary} />
+        ) : (
+          <TouchableOpacity style={styles.filterIcon} onPress={handleSearch}>
+            <Ionicons name="options-outline" size={24} color="black" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

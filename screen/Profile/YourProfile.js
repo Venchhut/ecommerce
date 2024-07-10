@@ -4,19 +4,21 @@ import {
   View,
   Text,
   TextInput,
-  Button,
-  Image,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
-import { COLORS } from "../../constants";
 import { useAuthContext } from "../../Contexts/AuthContext";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 const YourProfile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [newPassword, setNewPassword] = useState("");
   const { axiosInstanceWithAuth, userIdFromToken } = useAuthContext();
+  const navigation = useNavigation();
+  const route = useRoute();
+  const onGoBack = route.params?.onGoBack;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -24,7 +26,7 @@ const YourProfile = () => {
         const res = await axiosInstanceWithAuth.get(
           `/api/user/${userIdFromToken}`
         );
-        const { name, email, phoneNumber } = res.data; // Exclude password from fetched data
+        const { name, email, phoneNumber } = res.data;
         setProfile({ name, email, phoneNumber });
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -54,7 +56,16 @@ const YourProfile = () => {
         updateData
       );
       setProfile(res.data);
-      setNewPassword(""); // Clear the password field after update
+      setNewPassword("");
+      Alert.alert("Success", "Profile updated successfully!", [
+        {
+          text: "OK",
+          onPress: () => {
+            if (onGoBack) onGoBack();
+            navigation.navigate("Profile");
+          },
+        },
+      ]);
     } catch (error) {
       console.error("Error updating profile:", error);
       console.error("Response data:", error.response.data);
@@ -83,18 +94,9 @@ const YourProfile = () => {
         style={styles.backButton}
         onPress={() => navigation.goBack()}
       >
-        <Text style={styles.backButtonText}>←</Text>
+        <Text style={styles.backButtonText}></Text>
       </TouchableOpacity>
       <Text style={styles.title}>Your Profile</Text>
-      <View style={styles.profileImageContainer}>
-        <Image
-          source={{ uri: "https://via.placeholder.com/150" }}
-          style={styles.profileImage}
-        />
-        <TouchableOpacity style={styles.editIcon}>
-          <Text style={styles.editIconText}>✏️</Text>
-        </TouchableOpacity>
-      </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Name</Text>
         <TextInput
@@ -154,25 +156,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     alignSelf: "center",
     marginBottom: 20,
-  },
-  profileImageContainer: {
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  editIcon: {
-    bottom: 20,
-    left: 20,
-    backgroundColor: COLORS.primary,
-    borderRadius: 15,
-    padding: 5,
-  },
-  editIconText: {
-    color: "#fff",
   },
   inputContainer: {
     marginBottom: 20,
